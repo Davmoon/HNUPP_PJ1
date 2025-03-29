@@ -10,6 +10,7 @@
 
 char room[ROOM_HEIGHT][ROOM_WIDTH];
 
+//고양이 시작 죄표
 int cat = 1;
 
 typedef struct {
@@ -163,6 +164,7 @@ void CatSoupMSG(PLAYER player) {
 int CatMove(int* arr, PLAYER* player) {
 
 	int dice = random(6);
+	//호감도 설정. 구조체로 만들어 버려서 define을 사용할 수 없었음..
 	int target = 6 - player->fLevel;
 
 	arr[0] = dice, arr[1] = target;

@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <time.h>
 
-#define ROOM_WIDTH 4
+#define ROOM_WIDTH 10
 #define ROOM_HEIGHT 4
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
@@ -133,13 +133,13 @@ void PrintIntro(PLAYER *player) {
 	printf("야옹이의 이름을 지어주세요 :");
 	scanf_s("%49s", name, (unsigned)_countof(name));
 
-	player->name = malloc(sizeof(name) + 1);
+	player->name = malloc(strlen(name) + 1);
 	if (player->name == NULL) {
 		return;
 	}
 
 	//경고 잡고 싶은데..
-	strcpy_s(player->name, sizeof(name), name);
+	strcpy_s(player->name, strlen(name) + 1, name);
 	player->name[strlen(name)] = '\0';
 	printf("야옹이의 이름은 %s입니다.\n", player->name);
 	Sleep(2500);

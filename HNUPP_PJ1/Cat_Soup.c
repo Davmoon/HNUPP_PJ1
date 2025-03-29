@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <Windows.h>
+#include <time.h>
 
-#define ROOM_WIDTH 10
+#define ROOM_WIDTH 4
 #define ROOM_HEIGHT 4
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
@@ -24,7 +25,7 @@ void PrintStatusRoomMove(int* arr, PLAYER player) {
 	Sleep(500);
 	printf("주사위를 굴립니다.또르륵...\n");
 	Sleep(500);
-	printf("%d(이)가 나왔습니다!\n", arr[0]);
+	printf("%d이(가) 나왔습니다!\n", arr[0]);
 	Sleep(500);
 }
 
@@ -108,7 +109,8 @@ void Interaction(PLAYER *player) {
 
 	switch (tmp) {
 		case 0:
-			Interfuc(player, dice, 0, 4);
+			//이상을 잘못봐서.. Interfuc 구조상 4가 아닌 5를 넣는게 맞음.
+			Interfuc(player, dice, 0, 5);
 			break;
 		case 1:
 			Interfuc(player, dice, 1, 5);

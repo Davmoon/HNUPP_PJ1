@@ -288,7 +288,7 @@ int main() {
 
 		Interaction(&player);
 		
-		Sleep(3000); //2.5초 대기
+		Sleep(2500); //2.5초 대기
 		system("cls");
 	}
 

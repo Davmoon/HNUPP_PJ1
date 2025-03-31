@@ -18,5 +18,8 @@
     <ClCompile Include="Cat_Soup.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Cat_Soup_noarray.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

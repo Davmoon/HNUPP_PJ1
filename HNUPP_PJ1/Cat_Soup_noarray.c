@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <time.h>
 
-#define ROOM_WIDTH 6
+#define ROOM_WIDTH 8
 #define ROOM_HEIGHT 4
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
@@ -16,6 +16,8 @@ typedef struct {
 	char* name;
 	int soup_n;
 	int fLevel;
+	int CP;
+	int mood;
 } PLAYER;
 
 void PrintStatusRoomMove(PLAYER player) {
@@ -33,6 +35,23 @@ void PrintStatus(PLAYER player) {
 
 	printf("==================== 현재 상태 ====================\n");
 	printf("현재까지 만든 수프 : %d\n", player.soup_n);
+
+	printf("CP : %d 포인트\n쫀떡이 기분(0~3): %d", player.CP, player.mood);
+	switch (player.mood) {
+	case 0:
+		printf("기분이 매우 나쁩니다\n");
+		break;
+	case 1:
+		printf("심심해합니다.\n");
+		break;
+	case 2:
+		printf("식빵을 굽습니다.\n");
+		break;
+	case 3:
+		printf("골골송을 부릅니다.\n");
+		break;
+	}
+
 	printf("집사와의 관계(0~4) : %d\n", player.fLevel);
 	switch (player.fLevel) {
 	case 0:
@@ -54,7 +73,7 @@ void PrintStatus(PLAYER player) {
 	printf("===================================================\n\n");
 }
 
-int random(int max) {
+int Random(int max) {
 	return rand() % max + 1;
 }
 
@@ -122,7 +141,7 @@ void Interaction(PLAYER* player) {
 		scanf_s("%d", &tmp);
 	} while (tmp != 0 && tmp != 1);
 
-	int dice = random(6);
+	int dice = Random(6);
 
 	switch (tmp) {
 	case 0:
@@ -158,14 +177,14 @@ void PrintIntro(PLAYER* player) {
 	strcpy_s(player->name, strlen(name) + 1, name);
 	player->name[strlen(name)] = '\0';
 	printf("야옹이의 이름은 %s입니다.\n", player->name);
-	Sleep(2500);
+	Sleep(1000);
 
 	system("cls");
 }
 
 void CatSoupMessage(PLAYER player) {
 
-	int dice = random(3);
+	int dice = Random(3);
 
 	switch (dice) {
 	case 1:
@@ -183,7 +202,7 @@ void CatSoupMessage(PLAYER player) {
 
 int CatMove(PLAYER* player) {
 
-	dice = random(6);
+	dice = Random(6);
 	//호감도 설정. 구조체로 만들어 버려서 define을 사용할 수 없었음..
 	target = 6 - player->fLevel;
 
@@ -272,7 +291,7 @@ void PrintMap() {
 int main() {
 	srand((unsigned int)time(NULL));
 
-	PLAYER player = { NULL, 0, 0 };
+	PLAYER player = { NULL, 0, 2, 0 };
 
 	PrintIntro(&player);
 

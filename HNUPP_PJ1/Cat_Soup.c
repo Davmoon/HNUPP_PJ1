@@ -16,7 +16,7 @@ int cat = 1;
 typedef struct {
 	char *name;
 	int soup_n;
-	int fLevel;
+	int RLevel;
 } PLAYER;
 
 void PrintStatusRoomMove(int* arr, PLAYER player) {
@@ -33,7 +33,7 @@ void PrintStatusRoomMove(int* arr, PLAYER player) {
 void PrintStatus(PLAYER player, char *script) {
 	printf("==================== 현재 상태 ====================\n");
 	printf("현재까지 만든 수프 : %d\n", player.soup_n);
-	printf("집사와의 관계(0~4) : %d\n", player.fLevel);
+	printf("집사와의 관계(0~4) : %d\n", player.RLevel);
 	printf("  %s\n", script);
 	printf("===================================================\n\n");
 }
@@ -65,9 +65,9 @@ void Interfuc(PLAYER* player, int dice, int mode, int range) {
 
 	if (dice < range) {
 		if (mode == 0) {
-			if (player->fLevel > 0) {
+			if (player->RLevel > 0) {
 				printf("친밀도가 떨어집니다.\n");
-				player->fLevel--;
+				player->RLevel--;
 			}
 			else {
 				printf("친밀도는 더이상 떨어지지 않습니다..\n");
@@ -84,9 +84,9 @@ void Interfuc(PLAYER* player, int dice, int mode, int range) {
 			printf("다행히 친밀도가 떨어지지 않았습니다.\n");
 		}
 		else {
-			if (player->fLevel < 4) {
+			if (player->RLevel < 4) {
 				printf("친밀도가 높아집니다.\n");
-				player->fLevel++;
+				player->RLevel++;
 			}
 			else {
 				printf("친밀도는 더이상 올라가지 않습니다.\n");
@@ -118,7 +118,7 @@ void Interaction(PLAYER *player) {
 			break;
 	}
 
-	printf("현재 친밀도: %d\n", player->fLevel);
+	printf("현재 친밀도: %d\n", player->RLevel);
 	Sleep(500);
 }
 
@@ -165,7 +165,7 @@ int CatMove(int* arr, PLAYER* player) {
 
 	int dice = random(6);
 	//호감도 설정. 구조체로 만들어 버려서 define을 사용할 수 없었음..
-	int target = 6 - player->fLevel;
+	int target = 6 - player->RLevel;
 
 	arr[0] = dice, arr[1] = target;
 
@@ -272,7 +272,7 @@ int main() {
 	CreateMap();
 
 	while (1) {
-		PrintStatus(player, message[player.fLevel]);
+		PrintStatus(player, message[player.RLevel]);
 
 		int SoupPrint = CatMove(arr, &player);
 

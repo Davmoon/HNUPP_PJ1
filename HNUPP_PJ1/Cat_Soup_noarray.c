@@ -7,6 +7,8 @@
 #define ROOM_HEIGHT 4
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
+#define DICE 6
+#define ST Sleep(500)
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
@@ -15,20 +17,31 @@ int dice = 0, target = 0, ordernum = 0;
 typedef struct {
 	char* name;
 	int soup_n;
-	int fLevel;
+	int RLevel;
 	int CP;
-	int mood;
+	int Feel;
 } PLAYER;
 
 void PrintStatusRoomMove(PLAYER player) {
 	printf("%s 이동: 집사와 친밀할수록 냄비 쪽으로 갈 확률이 높아집니다.\n", player.name);
-	Sleep(500);
+	ST;
 	printf("주사위 눈이 %d 이상이면 냄비 쪽으로 이동합니다.\n", target);
-	Sleep(500);
+	ST;
 	printf("주사위를 굴립니다.또르륵...\n");
-	Sleep(500);
+	ST;
 	printf("%d이(가) 나왔습니다!\n", dice);
-	Sleep(500);
+	ST;
+}
+
+void PrintStatusFeel(PLAYER player){
+	printf("%d - %d : 주사위의 눈이 %d 이하이면 그냥 기분이 나빠집니다.", DICE, player.Feel);
+	ST;
+	printf("주사위를 굴립니다. 또르르..");
+	ST;
+	printf("2이(가) 나왔습니다.");
+	ST;
+	printf("쫀떡의 기분이 나빠집니다. %d -> %d");
+
 }
 
 void PrintStatus(PLAYER player) {
@@ -36,8 +49,8 @@ void PrintStatus(PLAYER player) {
 	printf("==================== 현재 상태 ====================\n");
 	printf("현재까지 만든 수프 : %d\n", player.soup_n);
 
-	printf("CP : %d 포인트\n쫀떡이 기분(0~3): %d", player.CP, player.mood);
-	switch (player.mood) {
+	printf("CP : %d 포인트\n쫀떡이 기분(0~3): %d\n\t", player.CP, player.Feel);
+	switch (player.Feel) {
 	case 0:
 		printf("기분이 매우 나쁩니다\n");
 		break;
@@ -52,8 +65,8 @@ void PrintStatus(PLAYER player) {
 		break;
 	}
 
-	printf("집사와의 관계(0~4) : %d\n", player.fLevel);
-	switch (player.fLevel) {
+	printf("집사와의 관계(0~4) : %d\n", player.RLevel);
+	switch (player.RLevel) {
 	case 0:
 		printf("곁에 오는 것조차 싫어합니다\n");
 		break;
@@ -81,37 +94,37 @@ int Random(int max) {
 void Interfuc(PLAYER* player, int dice, int mode, int range) {
 	if (mode == 0) {
 		printf("아무것도 하지 않습니다.\n");
-		Sleep(500);
+		ST;
 		printf("4/6 확률로 친밀도가 떨어집니다.\n");
-		Sleep(500);
+		ST;
 		printf("주사위를 굴립니다.또르륵...\n");
 	}
 	else {
 		printf("%s의 턱을 긁어주었습니다.\n", player->name);
-		Sleep(500);
+		ST;
 		printf("2/6의 확률로 친밀도가 높아집니다.\n");
-		Sleep(500);
+		ST;
 		printf("주사위를 굴립니다.또르륵...\n");
 	}
-	Sleep(500);
+	ST;
 
 	printf("%d이(가) 나왔습니다!\n", dice);
-	Sleep(500);
+	ST;
 
 	if (dice < range) {
 		if (mode == 0) {
-			if (player->fLevel > 0) {
+			if (player->RLevel > 0) {
 				printf("친밀도가 떨어집니다.\n");
-				player->fLevel--;
+				player->RLevel--;
 			}
 			else {
 				printf("친밀도는 더이상 떨어지지 않습니다..\n");
 			}
-			Sleep(500);
+			ST;
 		}
 		else {
 			printf("친밀도는 그대로입니다..\n");
-			Sleep(500);
+			ST;
 		}
 	}
 	else {
@@ -119,15 +132,15 @@ void Interfuc(PLAYER* player, int dice, int mode, int range) {
 			printf("다행히 친밀도가 떨어지지 않았습니다.\n");
 		}
 		else {
-			if (player->fLevel < 4) {
+			if (player->RLevel < 4) {
 				printf("친밀도가 높아집니다.\n");
-				player->fLevel++;
+				player->RLevel++;
 			}
 			else {
 				printf("친밀도는 더이상 올라가지 않습니다.\n");
 			}
 		}
-		Sleep(500);
+		ST;
 	}
 }
 
@@ -153,15 +166,15 @@ void Interaction(PLAYER* player) {
 		break;
 	}
 
-	printf("현재 친밀도: %d\n", player->fLevel);
-	Sleep(500);
+	printf("현재 친밀도: %d\n", player->RLevel);
+	ST;
 }
 
 void PrintIntro(PLAYER* player) {
 	printf("****야옹이와 수프****\n");
-	Sleep(500);
+	ST;
 	printf("      /\\_/\\\n /\\  / o o \\\n//\\\\ \\~(*)~/\n`  \\/   ^ /\n   | \\|| ||\n   \\ '|| ||\n    \\)()-())\n\n");
-	Sleep(500);
+	ST;
 
 	char name[50];
 
@@ -197,14 +210,14 @@ void CatSoupMessage(PLAYER player) {
 		printf("%s이(가) 브로콜리 수프를 만들었습니다!\n\n", player.name);
 		break;
 	}
-	Sleep(500);
+	ST;
 }
 
 int CatMove(PLAYER* player) {
 
 	dice = Random(6);
 	//호감도 설정. 구조체로 만들어 버려서 define을 사용할 수 없었음..
-	target = 6 - player->fLevel;
+	target = 6 - player->RLevel;
 
 	// 타겟과 같거나 높을 때
 	if (dice >= target) {
@@ -256,7 +269,24 @@ void PrintStatusCat() {
 		break;
 	}
 	ordernum = 0;
-	Sleep(500);
+	ST;
+}
+
+void PrintStatusCat() {
+
+	switch (ordernum) {
+	case 1:
+		printf("냄비쪽으로 움직입니다!\n\n");
+		break;
+	case 2:
+		printf("실패했습니다. 뒤로 돌아갑니다... \n\n");
+		break;
+	case 3:
+		printf("아직 집에 있습니다... \n\n");
+		break;
+	}
+	ordernum = 0;
+	ST;
 }
 
 void PrintMap() {
@@ -285,13 +315,14 @@ void PrintMap() {
 		printf("\n");
 	}
 	printf("\n");
-	Sleep(500);
+	ST;
 }
 
 int main() {
 	srand((unsigned int)time(NULL));
 
-	PLAYER player = { NULL, 0, 2, 0 };
+	//Cp 기본값 3
+	PLAYER player = { NULL, 0, 2, 3 };
 
 	PrintIntro(&player);
 

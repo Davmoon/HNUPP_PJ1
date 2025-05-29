@@ -33,15 +33,32 @@ void PrintStatusRoomMove(PLAYER player) {
 	ST;
 }
 
-void PrintStatusFeel(PLAYER player){
-	printf("%d - %d : 주사위의 눈이 %d 이하이면 그냥 기분이 나빠집니다.", DICE, player.Feel);
+void PrintStatusFeel(PLAYER *player){
+	printf("%d - %d : 주사위의 눈이 %d 이하이면 그냥 기분이 나빠집니다.\n", DICE, player->RLevel, DICE - player->RLevel);
 	ST;
-	printf("주사위를 굴립니다. 또르르..");
+	printf("주사위를 굴립니다. 또르르..\n");
 	ST;
-	printf("2이(가) 나왔습니다.");
+	
+	int dice = Random(6);
+	printf("%d이(가) 나왔습니다.\n", dice);
 	ST;
-	printf("쫀떡의 기분이 나빠집니다. %d -> %d");
 
+	int decision_base = DICE - player->RLevel;
+	if (dice > decision_base) {
+		printf("기분이 나빠지지 않았습니다.\n");
+	}
+	else {
+		printf("쫀떡이의 기분이 나빠집니다. : ");
+		printf("%d -> ", player->Feel);
+		if (player->Feel - 1 < 0) {
+			printf("%d", player->Feel);
+		}
+		else {
+			printf("%d", --player->Feel);
+		}
+	}
+	printf("\n");
+	ST;
 }
 
 void PrintStatus(PLAYER player) {
@@ -272,23 +289,6 @@ void PrintStatusCat() {
 	ST;
 }
 
-void PrintStatusCat() {
-
-	switch (ordernum) {
-	case 1:
-		printf("냄비쪽으로 움직입니다!\n\n");
-		break;
-	case 2:
-		printf("실패했습니다. 뒤로 돌아갑니다... \n\n");
-		break;
-	case 3:
-		printf("아직 집에 있습니다... \n\n");
-		break;
-	}
-	ordernum = 0;
-	ST;
-}
-
 void PrintMap() {
 
 	for (int i = 0; i < ROOM_HEIGHT; i++) {
@@ -322,12 +322,14 @@ int main() {
 	srand((unsigned int)time(NULL));
 
 	//Cp 기본값 3
-	PLAYER player = { NULL, 0, 2, 3 };
+	PLAYER player = { NULL, 0, 2, 0, 3};
 
 	PrintIntro(&player);
 
 	while (1) {
 		PrintStatus(player);
+
+		PrintStatusFeel(&player);
 
 		int SoupPrint = CatMove(&player);
 

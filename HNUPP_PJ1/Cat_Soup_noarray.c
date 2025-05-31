@@ -12,7 +12,10 @@
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
-int dice = 0, target = 0, ordernum = 0;
+int dice = 0, target = 0, ordernum = 0; //스프 생성시 출력 선택
+
+char CatItem[2][50] = { "스크래쳐","캣타워" };
+int CatItemPlace[2] = { -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
 
 typedef struct {
 	char* name;
@@ -231,15 +234,52 @@ void CatSoupMessage(PLAYER player) {
 }
 
 void CatMoveToHome() {
-
+	if (cat > HME_POS) {
+		beforecat = cat;
+		cat--;
+		ordernum = 2;
+	}
+	//끝일 때
+	else {
+		beforecat = NULL;
+		ordernum = 3;
+	}
 }
 
-void CatMoveToPot() {
-
+int CatMoveToPot(PLAYER *player) {
+	//끝이 아닐 때
+	if (cat < BWL_PO) {
+		beforecat = cat;
+		cat++;
+		ordernum = 1;
+		if (cat == BWL_PO) {
+			player->soup_n++;
+			return 1;
+		}
+	}
+	//끝일 때
+	else {
+		beforecat = NULL;
+		return 1;
+	}
 }
 
-void CatMoveToItem() {
-
+int CatMoveToItem() {
+	int minusOneCount = 0;
+	
+	//배치된 놀거리가 있는지 확인.
+	for (int i = 0; i < len(CatItemPlace); i++) {
+		if (CatItemPlace[i] == -1) minusOneCount++;
+	}
+	
+	//모든 놀거리(Item)이(가) 없는 상황
+	if (minusOneCount == len(CatItemPlace)) {
+		return NULL;
+	}
+	//놀거리가 있는 경우
+	else {
+		return -1;
+	}
 }
 
 int CatMove(PLAYER* player) {
@@ -248,49 +288,29 @@ int CatMove(PLAYER* player) {
 	//호감도 설정. 구조체로 만들어 버려서 define을 사용할 수 없었음..
 	target = 6 - player->RLevel;
 
+	int itemIndex = NULL;
+
 	switch (player->Feel) {
 	case 0:
+		CatMoveToHome();
+		printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.", player->name);
 		break;
 	case 1:
+		itemIndex = CatMoveToItem();
+		if ( itemIndex != NULL) {
+			printf("%s은(는) 심심해서 %s쪽으로 이동합니다.", player->name, CatItem[itemIndex]);
+		}
+		else {
+			printf("놀거리가 없어서 기분이 매우 나빠집니다.");
+			player->Feel--;
+		}
 		break;
 	case 2:
+		printf("“%s은(는) 기분좋게 식빵을 굽고 있습니다.", player->name);
 		break;
 	case 3:
+		printf("%s은(는) 골골송을 부르며 수프를 만들러 갑니다.", player->name);
 		break;
-	}
-
-	// 타겟과 같거나 높을 때
-	if (dice >= target) {
-		//끝이 아닐 때
-		if (cat < BWL_PO) {
-			beforecat = cat;
-			cat++;
-			ordernum = 1;
-			if (cat == BWL_PO) {
-				player->soup_n++;
-				return 1;
-			}
-		}
-		//끝일 때
-		else {
-			beforecat = NULL;
-			player->soup_n++;
-			return 1;
-		}
-	}
-	//타겟보다 작을 때
-	else {
-		//끝이 아닐 때
-		if (cat > HME_POS) {
-			beforecat = cat;
-			cat--;
-			ordernum = 2;
-		}
-		//끝일 때
-		else {
-			beforecat = NULL;
-			ordernum = 3;
-		}
 	}
 	return 0;
 }

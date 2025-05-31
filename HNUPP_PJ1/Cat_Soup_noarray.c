@@ -230,11 +230,34 @@ void CatSoupMessage(PLAYER player) {
 	ST;
 }
 
+void CatMoveToHome() {
+
+}
+
+void CatMoveToPot() {
+
+}
+
+void CatMoveToItem() {
+
+}
+
 int CatMove(PLAYER* player) {
 
 	dice = Random(6);
 	//호감도 설정. 구조체로 만들어 버려서 define을 사용할 수 없었음..
 	target = 6 - player->RLevel;
+
+	switch (player->Feel) {
+	case 0:
+		break;
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	}
 
 	// 타겟과 같거나 높을 때
 	if (dice >= target) {

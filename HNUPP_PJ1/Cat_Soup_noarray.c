@@ -15,7 +15,7 @@
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
 int dice = 0, target = 0, ordernum = 0;
-bool beforehomestate;
+bool beforehomestate = false;
 
 char CatItem[ITEM_NUM][50] = { "스크래쳐","캣타워" };
 int CatItemPlace[ITEM_NUM] = { -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
@@ -385,6 +385,10 @@ void PrintStatusCat() {
 	ST;
 }
 
+void CatAction() {
+
+}
+
 void PrintMap() {
 
 	for (int i = 0; i < ROOM_HEIGHT; i++) {
@@ -435,6 +439,8 @@ int main() {
 		if (SoupPrint == 1) {
 			CatSoupMessage(player);
 		}
+
+		CatAction();
 
 		PrintMap();
 

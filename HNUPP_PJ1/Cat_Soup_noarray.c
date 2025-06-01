@@ -8,14 +8,15 @@
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
 #define DICE 6
+#define ITEM_NUM 2
 #define ST Sleep(500)
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
 int dice = 0, target = 0, ordernum = 0; //스프 생성시 출력 선택
 
-char CatItem[2][50] = { "스크래쳐","캣타워" };
-int CatItemPlace[2] = { -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
+char CatItem[ITEM_NUM][50] = { "스크래쳐","캣타워" };
+int CatItemPlace[ITEM_NUM] = { -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
 
 typedef struct {
 	char* name;
@@ -264,21 +265,37 @@ int CatMoveToPot(PLAYER *player) {
 	}
 }
 
+int NearItemCK() {
+	int nearItemNum = -1;
+	int nearItemDis = INT_MAX;
+
+	for (int i = 0; i < ITEM_NUM; i++) {
+		if (CatItemPlace[i] != -1) { 
+			int dis = abs(CatItemPlace[i] - cat);
+			if (dis < nearItemDis) {
+				nearItemDis = dis;
+				nearItemNum = i;
+			}
+		}
+	}
+	return nearItemNum;
+}
+
 int CatMoveToItem() {
 	int minusOneCount = 0;
 	
 	//배치된 놀거리가 있는지 확인.
-	for (int i = 0; i < len(CatItemPlace); i++) {
+	for (int i = 0; i < ITEM_NUM; i++) {
 		if (CatItemPlace[i] == -1) minusOneCount++;
 	}
 	
 	//모든 놀거리(Item)이(가) 없는 상황
-	if (minusOneCount == len(CatItemPlace)) {
-		return NULL;
+	if (minusOneCount == ITEM_NUM) {
+		return -1;
 	}
 	//놀거리가 있는 경우
 	else {
-		return -1;
+		return NearItemCK();
 	}
 }
 

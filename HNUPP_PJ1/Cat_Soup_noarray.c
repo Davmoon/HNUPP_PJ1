@@ -59,11 +59,12 @@ void PrintStatusFeel(PLAYER *player){
 	else {
 		printf("쫀떡이의 기분이 나빠집니다 : ");
 		printf("%d -> ", player->Feel);
-		if (player->Feel - 1 < 0) {
+		if (player->Feel > 0) {
+			player->Feel--;
 			printf("%d", player->Feel);
 		}
 		else {
-			printf("%d", --player->Feel);
+			printf("%d", player->Feel);
 		}
 	}
 	printf("\n");
@@ -239,19 +240,25 @@ void CatSoupMessage(PLAYER player) {
 	ST;
 }
 
-void CatMoveToHome(PLAYER * player) {
+int CatMoveToHome(PLAYER *player) {
 	if (cat > HME_POS) {
 		beforecat = cat;
 		cat--;
 		//아무것도 출력 안함
 		ordernum = 0;
 		//ordernum = 2;
+		return 0;
 	}
 	//끝일 때
 	else {
 		beforecat = NULL;
-		player->Feel++;
-		ordernum = 4;
+		//휴식해서 좋아짐
+		if (player->Feel < 3) {
+			player->Feel++;
+			ordernum = 4;
+			return 1;
+		}
+		return 1;
 	}
 }
 
@@ -277,7 +284,7 @@ int MoveToNearItem(PLAYER* player, int itm) {
 	//고양이와 아이템이 같은 장소에 없을 때
 	if (cat != CatItemPlace[itm]) {
 		//같지 않고 고양이x가 더 클 때
-		if (cat > CatItemPlace) {
+		if (cat > CatItemPlace[itm]) {
 			beforecat = cat;
 			cat--;
 		}
@@ -298,9 +305,7 @@ int MoveToNearItem(PLAYER* player, int itm) {
 		printf(" 기분이 %s 좋아졌습니다 :", CatItemFeelUpDialog[itm]);
 		printf("%d ->", player->Feel);
 		player->Feel += CatItemFeelUpStatus[itm];
-		printf("%d\n", player->Feel);
-		
-		
+		printf("%d\n", player->Feel);	
 	}
 }
 
@@ -320,7 +325,7 @@ int NearItemCK(PLAYER* player) {
 	}
 	
 	//아이템으로 이동
-	MoveToNearItem(&player, nearItemNum);
+	MoveToNearItem(player, nearItemNum);
 
 	//아이템 이름 출력위해 리턴
 	return nearItemNum;
@@ -340,7 +345,7 @@ int CatMoveToItem(PLAYER* player) {
 	}
 	//놀거리가 있는 경우
 	else {
-		return NearItemCK(&player);
+		return NearItemCK(player);
 	}
 }
 
@@ -350,15 +355,18 @@ int CatMove(PLAYER* player) {
 	//호감도 설정. 구조체로 만들어 버려서 define을 사용할 수 없었음..
 	target = 6 - player->RLevel;
 
-	int itemIndex = NULL;
+	int itemIndex = 0;
+	int homeheal = 0;
 
 	switch (player->Feel) {
 	case 0:
-		CatMoveToHome(&player);
-		printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.\n", player->name);
+		homeheal = CatMoveToHome(player);
+		if (homeheal == 0) {
+			printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.\n", player->name);
+		}
 		break;
 	case 1:
-		itemIndex = CatMoveToItem(&player);
+		itemIndex = CatMoveToItem(player);
 		if ( itemIndex != -1) {
 			printf("%s은(는) 심심해서 %s쪽으로 이동합니다.\n", player->name, CatItem[itemIndex]);
 		}
@@ -368,7 +376,7 @@ int CatMove(PLAYER* player) {
 				printf("기분이 최저치라 더이상 나빠지지 않습니다!");
 			}
 			else {
-				printf("%d ->", player->Feel);
+				printf("%d -> ", player->Feel);
 				player->Feel--;
 				printf("%d\n", player->Feel);
 			}
@@ -386,7 +394,7 @@ int CatMove(PLAYER* player) {
 	return 0;
 }
 
-void PrintStatusCat() {
+void PrintStatusCat(PLAYER * player) {
 
 	switch (ordernum) {
 	case 0:
@@ -401,7 +409,7 @@ void PrintStatusCat() {
 		printf("아직 집에 있습니다... \n\n");
 		break;
 	case 4:
-		printf("집에 도착하여 회복중입니다. \n\n");
+		printf("집에 도착하여 회복중입니다. %d -> %d\n\n", player->Feel -1, player->Feel);
 		break;
 	}
 	ordernum = 0;
@@ -457,7 +465,7 @@ int main() {
 		int SoupPrint = CatMove(&player);
 
 		//PrintStatusRoomMove(player);
-		//PrintStatusCat();
+		PrintStatusCat(&player);
 
 		if (SoupPrint == 1) {
 			CatSoupMessage(player);

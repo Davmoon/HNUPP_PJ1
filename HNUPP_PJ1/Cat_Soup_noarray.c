@@ -273,9 +273,9 @@ int CatMoveToSoup(PLAYER *player) {
 	}
 }
 
-int MoveToNearItem(PLAYER* player, int itmx) {
+int MoveToNearItem(PLAYER* player, int itm) {
 	//고양이와 아이템이 같은 장소에 없을 때
-	if (cat != CatItemPlace[itmx]) {
+	if (cat != CatItemPlace[itm]) {
 		//같지 않고 고양이x가 더 클 때
 		if (cat > CatItemPlace) {
 			beforecat = cat;
@@ -287,7 +287,20 @@ int MoveToNearItem(PLAYER* player, int itmx) {
 		}
 	}
 	else {
-		printf("%s은(는) %s를 긁고 놀았습니다");
+		switch (itm) {
+		case 0:
+			printf("%s은(는) %s를 긁고 놀았습니다.", player->name, CatItem[itm]);
+			break;
+		case 1:
+			printf("%s은(는) %s를 뛰어다닙니다.", player->name, CatItem[itm]);
+			break;
+		}
+		printf(" 기분이 %s 좋아졌습니다 :", CatItemFeelUpDialog[itm]);
+		printf("%d ->", player->Feel);
+		player->Feel += CatItemFeelUpStatus[itm];
+		printf("%d\n", player->Feel);
+		
+		
 	}
 }
 

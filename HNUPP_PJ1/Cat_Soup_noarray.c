@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <Windows.h>
 #include <time.h>
 
@@ -13,7 +14,8 @@
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
-int dice = 0, target = 0, ordernum = 0; //스프 생성시 출력 선택
+int dice = 0, target = 0, ordernum = 0;
+bool beforehomestate;
 
 char CatItem[ITEM_NUM][50] = { "스크래쳐","캣타워" };
 int CatItemPlace[ITEM_NUM] = { -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
@@ -38,12 +40,13 @@ void PrintStatusRoomMove(PLAYER player) {
 }
 
 void PrintStatusFeel(PLAYER *player){
+
+	int dice = Random(6);
+
 	printf("%d - %d : 주사위의 눈이 %d 이하이면 그냥 기분이 나빠집니다.\n", DICE, player->RLevel, DICE - player->RLevel);
 	ST;
 	printf("주사위를 굴립니다. 또르르..\n");
 	ST;
-	
-	int dice = Random(6);
 	printf("%d이(가) 나왔습니다.\n", dice);
 	ST;
 
@@ -52,7 +55,7 @@ void PrintStatusFeel(PLAYER *player){
 		printf("기분이 나빠지지 않았습니다.\n");
 	}
 	else {
-		printf("쫀떡이의 기분이 나빠집니다. : ");
+		printf("쫀떡이의 기분이 나빠집니다 : ");
 		printf("%d -> ", player->Feel);
 		if (player->Feel - 1 < 0) {
 			printf("%d", player->Feel);
@@ -238,7 +241,8 @@ void CatMoveToHome() {
 	if (cat > HME_POS) {
 		beforecat = cat;
 		cat--;
-		ordernum = 2;
+		ordernum = 0;
+		//ordernum = 2;
 	}
 	//끝일 때
 	else {
@@ -247,7 +251,7 @@ void CatMoveToHome() {
 	}
 }
 
-int CatMoveToPot(PLAYER *player) {
+int CatMoveToSoup(PLAYER *player) {
 	//끝이 아닐 때
 	if (cat < BWL_PO) {
 		beforecat = cat;
@@ -265,10 +269,26 @@ int CatMoveToPot(PLAYER *player) {
 	}
 }
 
+int MoveToNearItem(int itmx) {
+	//고양이와 아이템이 같은 장소에 없을 때
+	if (cat != CatItemPlace[itmx]) {
+		//같지 않고 고양이x가 더 클 때
+		if (cat > CatItemPlace) {
+			beforecat = cat;
+			cat--;
+		}
+		else {
+			beforecat = cat;
+			cat++;
+		}
+	}
+}
+
 int NearItemCK() {
 	int nearItemNum = -1;
 	int nearItemDis = INT_MAX;
 
+	//가장 가까운 아이템 탐색
 	for (int i = 0; i < ITEM_NUM; i++) {
 		if (CatItemPlace[i] != -1) { 
 			int dis = abs(CatItemPlace[i] - cat);
@@ -278,6 +298,11 @@ int NearItemCK() {
 			}
 		}
 	}
+	
+	//아이템으로 이동
+	MoveToNearItem(nearItemNum);
+
+	//아이템 이름 출력위해 리턴
 	return nearItemNum;
 }
 
@@ -310,31 +335,42 @@ int CatMove(PLAYER* player) {
 	switch (player->Feel) {
 	case 0:
 		CatMoveToHome();
-		printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.", player->name);
+		printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.\n", player->name);
 		break;
 	case 1:
 		itemIndex = CatMoveToItem();
-		if ( itemIndex != NULL) {
-			printf("%s은(는) 심심해서 %s쪽으로 이동합니다.", player->name, CatItem[itemIndex]);
+		if ( itemIndex != -1) {
+			printf("%s은(는) 심심해서 %s쪽으로 이동합니다.\n", player->name, CatItem[itemIndex]);
 		}
 		else {
-			printf("놀거리가 없어서 기분이 매우 나빠집니다.");
-			player->Feel--;
+			printf("놀거리가 없어서 기분이 매우 나빠집니다");
+			if (player->Feel == 0) {
+				printf("기분이 최저치라 더이상 나빠지지 않습니다!");
+			}
+			else {
+				printf("%d ->", player->Feel);
+				player->Feel--;
+				printf("%d\n", player->Feel);
+			}
 		}
 		break;
 	case 2:
-		printf("“%s은(는) 기분좋게 식빵을 굽고 있습니다.", player->name);
+		printf("%s은(는) 기분좋게 식빵을 굽고 있습니다.\n", player->name);
 		break;
 	case 3:
-		printf("%s은(는) 골골송을 부르며 수프를 만들러 갑니다.", player->name);
+		CatMoveToSoup(&player);
+		printf("%s은(는) 골골송을 부르며 수프를 만들러 갑니다.\n", player->name);
 		break;
 	}
+	printf("\n");
 	return 0;
 }
 
 void PrintStatusCat() {
 
 	switch (ordernum) {
+	case 0:
+		break;
 	case 1:
 		printf("냄비쪽으로 움직입니다!\n\n");
 		break;
@@ -393,9 +429,8 @@ int main() {
 
 		int SoupPrint = CatMove(&player);
 
-		PrintStatusRoomMove(player);
-
-		PrintStatusCat();
+		//PrintStatusRoomMove(player);
+		//PrintStatusCat();
 
 		if (SoupPrint == 1) {
 			CatSoupMessage(player);

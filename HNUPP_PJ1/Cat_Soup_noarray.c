@@ -18,7 +18,9 @@ int dice = 0, target = 0, ordernum = 0;
 bool beforehomestate = false;
 
 char CatItem[ITEM_NUM][50] = { "스크래쳐","캣타워" };
+char CatItemFeelUpDialog[2][50] = { "조금", "제법" };
 int CatItemPlace[ITEM_NUM] = { -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
+int CatItemFeelUpStatus[ITEM_NUM] = {1, 2};
 
 typedef struct {
 	char* name;
@@ -237,17 +239,19 @@ void CatSoupMessage(PLAYER player) {
 	ST;
 }
 
-void CatMoveToHome() {
+void CatMoveToHome(PLAYER * player) {
 	if (cat > HME_POS) {
 		beforecat = cat;
 		cat--;
+		//아무것도 출력 안함
 		ordernum = 0;
 		//ordernum = 2;
 	}
 	//끝일 때
 	else {
 		beforecat = NULL;
-		ordernum = 3;
+		player->Feel++;
+		ordernum = 4;
 	}
 }
 
@@ -269,7 +273,7 @@ int CatMoveToSoup(PLAYER *player) {
 	}
 }
 
-int MoveToNearItem(int itmx) {
+int MoveToNearItem(PLAYER* player, int itmx) {
 	//고양이와 아이템이 같은 장소에 없을 때
 	if (cat != CatItemPlace[itmx]) {
 		//같지 않고 고양이x가 더 클 때
@@ -282,9 +286,12 @@ int MoveToNearItem(int itmx) {
 			cat++;
 		}
 	}
+	else {
+		printf("%s은(는) %s를 긁고 놀았습니다");
+	}
 }
 
-int NearItemCK() {
+int NearItemCK(PLAYER* player) {
 	int nearItemNum = -1;
 	int nearItemDis = INT_MAX;
 
@@ -300,13 +307,13 @@ int NearItemCK() {
 	}
 	
 	//아이템으로 이동
-	MoveToNearItem(nearItemNum);
+	MoveToNearItem(&player, nearItemNum);
 
 	//아이템 이름 출력위해 리턴
 	return nearItemNum;
 }
 
-int CatMoveToItem() {
+int CatMoveToItem(PLAYER* player) {
 	int minusOneCount = 0;
 	
 	//배치된 놀거리가 있는지 확인.
@@ -320,7 +327,7 @@ int CatMoveToItem() {
 	}
 	//놀거리가 있는 경우
 	else {
-		return NearItemCK();
+		return NearItemCK(&player);
 	}
 }
 
@@ -334,11 +341,11 @@ int CatMove(PLAYER* player) {
 
 	switch (player->Feel) {
 	case 0:
-		CatMoveToHome();
+		CatMoveToHome(&player);
 		printf("기분이 매우 나쁜 %s은(는) 집으로 향합니다.\n", player->name);
 		break;
 	case 1:
-		itemIndex = CatMoveToItem();
+		itemIndex = CatMoveToItem(&player);
 		if ( itemIndex != -1) {
 			printf("%s은(는) 심심해서 %s쪽으로 이동합니다.\n", player->name, CatItem[itemIndex]);
 		}
@@ -379,6 +386,9 @@ void PrintStatusCat() {
 		break;
 	case 3:
 		printf("아직 집에 있습니다... \n\n");
+		break;
+	case 4:
+		printf("집에 도착하여 회복중입니다. \n\n");
 		break;
 	}
 	ordernum = 0;

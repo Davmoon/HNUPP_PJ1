@@ -174,12 +174,22 @@ void Interfuc(PLAYER* player, int dice, int mode, int range) {
 void Interaction(PLAYER* player) {
 	//키보드 입력 함수 다시?
 	int tmp;
-	printf("어떤 상호작용을 하시겠습니까? 0. 아무것도 하지 않음    1. 긁어주기\n");
+	printf("어떤 상호작용을 하시겠습니까?\n0. 아무것도 하지 않음\n1. 긁어주기\n");
+
+	int menunum = 2;
+
+	//배치된 놀거리가 있는지 확인.
+	for (int i = 0; i < ITEM_NUM; i++) {
+		if (CatItemPlace[i] != -1) { 
+			printf("%d. %s", menunum, CatItem[i]);
+			menunum++;
+		}
+	}
 
 	do {
 		printf(">> ");
 		scanf_s("%d", &tmp);
-	} while (tmp != 0 && tmp != 1);
+	} while (tmp >= menunum);
 
 	int dice = Random(6);
 

@@ -119,69 +119,136 @@ int Random(int max) {
 
 //mode 0->아무것도 하지 않기, 1->긁어주기
 void Interfuc(PLAYER* player, int dice, int mode, int range) {
-	if (mode == 0) {
-		printf("아무것도 하지 않습니다.\n");
+	int beforefeal = player->Feel;
+	int beforeRLevel = player->RLevel;
+
+	switch (mode) {
+	case 0: //아무것도 안함
+
+		if (player->Feel > 0) player->Feel--;
+
+		printf("%s의 기분이 나빠졌습니다: %d -> %d\n", player->name, beforefeal, player->Feel);
 		ST;
-		printf("4/6 확률로 친밀도가 떨어집니다.\n");
+		printf("주사위 눈이 5 이하이면 친밀도가 1 감소합니다.\n");
 		ST;
-		printf("주사위를 굴립니다.또르륵...\n");
-	}
-	else {
+		printf("주사위를 굴립니다. 또르륵...\n");
+		ST;
+		printf("%d이(가) 나왔습니다!\n", dice);
+		ST;
+
+		if (dice <= 5) {
+			if (player->RLevel > 0) {
+				player->RLevel--;
+				printf("친밀도가 떨어집니다: %d -> %d\n", beforeRLevel, player->RLevel);
+			}
+			else {
+				printf("친밀도는 더이상 떨어지지 않습니다: %d\n", player->RLevel);
+			}
+		}
+		else {
+			printf("다행히 친밀도는 그대로입니다: %d\n", player->RLevel);
+		}
+		break;
+
+	case 1:// 긁기
+
 		printf("%s의 턱을 긁어주었습니다.\n", player->name);
+		ST;
+		printf("%s의 기분은 그대로입니다: %d\n", player->name, player->Feel);
 		ST;
 		printf("2/6의 확률로 친밀도가 높아집니다.\n");
 		ST;
-		printf("주사위를 굴립니다.또르륵...\n");
-	}
-	ST;
-
-	printf("%d이(가) 나왔습니다!\n", dice);
-	ST;
-
-	if (dice < range) {
-		if (mode == 0) {
-			if (player->RLevel > 0) {
-				printf("친밀도가 떨어집니다.\n");
-				player->RLevel--;
-			}
-			else {
-				printf("친밀도는 더이상 떨어지지 않습니다..\n");
-			}
-			ST;
-		}
-		else {
-			printf("친밀도는 그대로입니다..\n");
-			ST;
-		}
-	}
-	else {
-		if (mode == 0) {
-			printf("다행히 친밀도가 떨어지지 않았습니다.\n");
-		}
-		else {
-			if (player->RLevel < 4) {
-				printf("친밀도가 높아집니다.\n");
-				player->RLevel++;
-			}
-			else {
-				printf("친밀도는 더이상 올라가지 않습니다.\n");
-			}
-		}
+		printf("주사위를 굴립니다... 또르륵...\n");
 		ST;
+		printf("%d이(가) 나왔습니다!\n", dice);
+		ST;
+
+		if (dice >= 5) {
+			if (player->RLevel < 4) {
+				player->RLevel++;
+				printf("친밀도가 높아집니다: %d -> %d\n", beforeRLevel, player->RLevel);
+			}
+			else {
+				printf("친밀도는 이미 최대입니다: %d\n", player->RLevel);
+			}
+		}
+		else {
+			printf("친밀도는 그대로입니다: %d\n", player->RLevel);
+		}
+		break;
+
+	case 2: //쥐
+		if (player->Feel < 3) player->Feel++;
+
+		printf("장난감 쥐로 %s와 놀아주었습니다. ", player->name);
+		printf("%s의 기분이 조금 좋아졌습니다: %d -> %d\n", player->name, beforefeal, player->Feel);
+		ST;
+		printf("주사위가 4 이상이면 친밀도가 1 증가합니다.\n");
+		ST;
+		printf("주사위를 굴립니다... 또르륵...\n");
+		ST;
+		printf("%d이(가) 나왔습니다!\n", dice);
+		ST;
+
+		if (dice >= 4) {
+			if (player->RLevel < 4) {
+				player->RLevel++;
+				printf("친밀도가 높아집니다: %d -> %d\n", beforeRLevel, player->RLevel);
+			}
+			else {
+				printf("친밀도는 이미 최대입니다: %d\n", player->RLevel);
+			}
+		}
+		else {
+			printf("친밀도는 그대로입니다: %d\n", player->RLevel);
+		}
+		break;
+
+	case 3: //레이저
+
+		if (player->Feel <= 1) player->Feel += 2;
+		else if (player->Feel == 2) player->Feel = 3;
+
+		printf("레이저 포인터로 %s와 신나게 놀아주었습니다. ", player->name);
+		printf("%s의 기분이 꽤 좋아졌습니다: %d -> %d\n", player->name, beforefeal, player->Feel);
+		ST;
+		printf("주사위가 2 이상이면 친밀도가 1 증가합니다.\n");
+		ST;
+		printf("주사위를 굴립니다... 또르륵...\n");
+		ST;
+		printf("%d이(가) 나왔습니다!\n", dice);
+		ST;
+		if (dice >= 2) {
+			if (player->RLevel < 4) {
+				player->RLevel++;
+				printf("친밀도가 높아집니다: %d -> %d\n", beforeRLevel, player->RLevel);
+			}
+			else {
+				printf("친밀도는 이미 최대입니다: %d\n", player->RLevel);
+			}
+		}
+		else {
+			printf("친밀도는 그대로입니다: %d\n", player->RLevel);
+		}
+		break;
 	}
+	ST;
 }
+
 
 void Interaction(PLAYER* player) {
 	//키보드 입력 함수 다시?
 	int tmp;
 	printf("어떤 상호작용을 하시겠습니까?\n0. 아무것도 하지 않음\n1. 긁어주기\n");
 
+	int menuitmindex[ITEM_NUM + 2] = { NULL };
 	int menunum = 2;
 
 	//배치된 놀거리가 있는지 확인.
 	for (int i = 0; i < ITEM_NUM; i++) {
 		if (CatItemPlace[i] != -1) { 
 			printf("%d. %s", menunum, CatItem[i]);
+			menuitmindex[menunum] = i;
 			menunum++;
 		}
 	}
@@ -189,18 +256,28 @@ void Interaction(PLAYER* player) {
 	do {
 		printf(">> ");
 		scanf_s("%d", &tmp);
-	} while (tmp >= menunum);
+	} while (tmp < 0 || tmp >= menunum);
 
 	int dice = Random(6);
 
-	switch (tmp) {
-	case 0:
-		//이상을 잘못봐서.. Interfuc 구조상 4가 아닌 5를 넣는게 맞음.
+	if (tmp == 0) {
 		Interfuc(player, dice, 0, 5);
-		break;
-	case 1:
+	}
+	else if (tmp == 1) {
 		Interfuc(player, dice, 1, 5);
-		break;
+	}
+	else {
+		int itemIndex = menuitmindex[tmp];
+
+		if (itemIndex == 0) {
+			Interfuc(player, dice, 2, 4);
+		}
+		else if (itemIndex == 1) {
+			Interfuc(player, dice, 3, 2);
+		}
+		else {
+			printf("오류여. 다시 해봐랴\n");
+		}
 	}
 
 	printf("현재 친밀도: %d\n", player->RLevel);
@@ -396,7 +473,7 @@ int CatMove(PLAYER* player) {
 		printf("%s은(는) 기분좋게 식빵을 굽고 있습니다.\n", player->name);
 		break;
 	case 3:
-		CatMoveToSoup(&player);
+		CatMoveToSoup(player);
 		printf("%s은(는) 골골송을 부르며 수프를 만들러 갑니다.\n", player->name);
 		break;
 	}

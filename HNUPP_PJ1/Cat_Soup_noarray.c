@@ -11,6 +11,7 @@
 #define DICE 6
 #define ITEM_NUM 2
 #define ST Sleep(500)
+#define MAX_MENU_ITEM (ITEM_NUM + 2)
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
@@ -71,13 +72,13 @@ void PrintStatusFeel(PLAYER *player){
 	ST;
 }
 
-void PrintStatus(PLAYER player) {
+void PrintStatus(PLAYER *player) {
 
 	printf("==================== 현재 상태 ====================\n");
-	printf("현재까지 만든 수프 : %d\n", player.soup_n);
+	printf("현재까지 만든 수프 : %d\n", player->soup_n);
 
-	printf("CP : %d 포인트\n쫀떡이 기분(0~3): %d\n\t", player.CP, player.Feel);
-	switch (player.Feel) {
+	printf("CP : %d 포인트\n쫀떡이 기분(0~3): %d\n\t", player->CP, player->Feel);
+	switch (player->Feel) {
 	case 0:
 		printf("기분이 매우 나쁩니다\n");
 		break;
@@ -92,8 +93,8 @@ void PrintStatus(PLAYER player) {
 		break;
 	}
 
-	printf("집사와의 관계(0~4) : %d\n", player.RLevel);
-	switch (player.RLevel) {
+	printf("집사와의 친밀도(0~4) : %d\n", player->RLevel);
+	switch (player->RLevel) {
 	case 0:
 		printf("곁에 오는 것조차 싫어합니다\n");
 		break;
@@ -241,13 +242,13 @@ void Interaction(PLAYER* player) {
 	int tmp;
 	printf("어떤 상호작용을 하시겠습니까?\n0. 아무것도 하지 않음\n1. 긁어주기\n");
 
-	int menuitmindex[ITEM_NUM + 2] = { NULL };
+	int menuitmindex[MAX_MENU_ITEM] = { NULL };
 	int menunum = 2;
 
 	//배치된 놀거리가 있는지 확인.
 	for (int i = 0; i < ITEM_NUM; i++) {
 		if (CatItemPlace[i] != -1) { 
-			printf("%d. %s", menunum, CatItem[i]);
+			printf("%d. %s\n", menunum, CatItem[i]);
 			menuitmindex[menunum] = i;
 			menunum++;
 		}
@@ -536,6 +537,10 @@ void PrintMap() {
 	ST;
 }
 
+void CreateCP(PLAYER* player) {
+	printf("쫀떡의 기분(0~3): %d", player->Feel);
+}
+
 int main() {
 	srand((unsigned int)time(NULL));
 
@@ -545,7 +550,7 @@ int main() {
 	PrintIntro(&player);
 
 	while (1) {
-		PrintStatus(player);
+		PrintStatus(&player);
 
 		PrintStatusFeel(&player);
 
@@ -563,6 +568,8 @@ int main() {
 		PrintMap();
 
 		Interaction(&player);
+
+		void CreateCP(PLAYER * player);
 
 		Sleep(2500); //2.5초 대기
 		system("cls");

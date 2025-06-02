@@ -9,19 +9,22 @@
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
 #define DICE 6
-#define ITEM_NUM 2
+#define ITEM_NUM 4
 #define ST Sleep(500)
 #define MAX_MENU_ITEM (ITEM_NUM + 2)
+#define MAX(a, b) ((a)>=(b)?(a):(b))
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
 int dice = 0, target = 0, ordernum = 0;
 bool beforehomestate = false;
 
-char CatItem[ITEM_NUM][50] = { "스크래쳐","캣타워" };
+//구조체로 바꾸면 좋겠는데;;
+char CatItem[ITEM_NUM][50] = { "장난감 쥐", "레이저 포인터","스크래쳐","캣타워"};
 char CatItemFeelUpDialog[2][50] = { "조금", "제법" };
-int CatItemPlace[ITEM_NUM] = { -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
+int CatItemPlace[ITEM_NUM] = { -1, -1, -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
 int CatItemFeelUpStatus[ITEM_NUM] = {1, 2};
+int CatItemPrice[ITEM_NUM] = { 1, 2, 4, 6 };
 
 typedef struct {
 	char* name;
@@ -504,10 +507,6 @@ void PrintStatusCat(PLAYER * player) {
 	ST;
 }
 
-void CatAction() {
-
-}
-
 void PrintMap() {
 
 	for (int i = 0; i < ROOM_HEIGHT; i++) {
@@ -548,6 +547,67 @@ void CreateCP(PLAYER* player) {
 
 void Shop(PLAYER * player) {
 	printf("상점에서 물건을 살 수 있습니다.\n어떤 물건을 구매할까요?");
+	printf("0. 아무것도 사지 않는다.");
+	for (int i = 0; i < ITEM_NUM; i++) {
+		printf("%d. %s : %d CP", i+1, CatItem[i], CatItemPrice[i]);
+		
+		if (CatItemPlace[i] != -1) {
+			printf(" (품절)");
+		}
+		printf("\n");
+	}
+
+	int inputmp;
+	do {
+		printf(">>");
+		scanf_s("%d", &inputmp);
+
+		if (inputmp == 0) {
+			printf("물건을 사지 않았습니다.");
+			break;
+		}
+		int ritmidx = inputmp - 1;
+
+		if (ritmidx < 0 || ritmidx >= ITEM_NUM) {
+			continue;
+		}
+		if (CatItemPlace[(ritmidx)] != -1) {
+			printf("이미 구매한 물건입니다.");
+			break;
+		}
+		else if (player->CP < CatItemPrice[ritmidx]) {
+			printf("CP가 부족합니다.");
+			break;
+		}
+
+		player->CP - CatItemPrice[ritmidx];
+		printf("%s를 구매했습니다. 남은 Cp : %d 포인트\n", CatItem[ritmidx], player->CP);
+
+		if (ritmidx >= 2) {
+			int x;
+			do {
+				x = Random(5);
+				int ck = 0;
+				for (int i = 0; i < ITEM_NUM; i++) {
+					if (CatItemPlace[i] == x) {
+						ck = 1;
+						break;
+					}
+				}
+				if (!ck) break;
+			} while (1);
+
+			CatItemPlace[ritmidx] = x;
+			printf("%s가 집의 위치 %d에 배치되었습니다.\n", CatItem[ritmidx], x);
+		}
+		else {
+			CatItemPlace[ritmidx] = 0;
+		}
+
+		break;
+
+	} while (1);
+	
 }
 
 int main() {
@@ -571,8 +631,6 @@ int main() {
 		if (SoupPrint == 1) {
 			CatSoupMessage(player);
 		}
-
-		CatAction();
 
 		PrintMap();
 

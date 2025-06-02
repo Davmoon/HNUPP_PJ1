@@ -530,9 +530,9 @@ void PrintMap() {
 				int printed = 0;
 				for (int k = 0; k < ITEM_NUM; k++) {
 					if (CatItemPlaceThing[k] != -1 && CatItemPlaceThing[k] == j) {
-						if (strcmp(CatItemThing[k], "스크래쳐") == 0)
+						if (k == 0)
 							printf("S");
-						else if (strcmp(CatItemThing[k], "캣타워") == 0)
+						else if (k == 1)
 							printf("T");
 						printed = 1;
 						break;

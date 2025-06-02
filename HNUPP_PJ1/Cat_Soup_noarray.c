@@ -538,7 +538,16 @@ void PrintMap() {
 }
 
 void CreateCP(PLAYER* player) {
+	player->Feel = (MAX(0, player->Feel - 1) + player->RLevel);
+
 	printf("쫀떡의 기분(0~3): %d", player->Feel);
+	printf("집사와의 친밀도(0~4): %d", player->RLevel);
+	printf("쫀떡의 기분과 친밀도에 따라서 CP가 %d 포인트 생산되었습니다.", player->Feel);
+	printf("보유 CP: %d 포인트", player->CP);
+}
+
+void Shop(PLAYER * player) {
+	printf("상점에서 물건을 살 수 있습니다.\n어떤 물건을 구매할까요?");
 }
 
 int main() {
@@ -569,7 +578,9 @@ int main() {
 
 		Interaction(&player);
 
-		void CreateCP(PLAYER * player);
+		CreateCP(&player);
+
+		Shop(&player);
 
 		Sleep(2500); //2.5초 대기
 		system("cls");

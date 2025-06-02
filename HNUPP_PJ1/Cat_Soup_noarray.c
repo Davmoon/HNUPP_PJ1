@@ -9,7 +9,7 @@
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
 #define DICE 6
-#define ITEM_NUM 4
+#define ITEM_NUM 2
 #define ST Sleep(500)
 #define MAX_MENU_ITEM (ITEM_NUM + 2)
 #define MAX(a, b) ((a)>=(b)?(a):(b))
@@ -20,11 +20,17 @@ int dice = 0, target = 0, ordernum = 0;
 bool beforehomestate = false;
 
 //구조체로 바꾸면 좋겠는데;;
-char CatItem[ITEM_NUM][50] = { "장난감 쥐", "레이저 포인터","스크래쳐","캣타워"};
+char CatItemThing[ITEM_NUM][50] = {"스크래쳐","캣타워"};
+int CatItemPriceThing[ITEM_NUM] = { 4, 6 };
+int CatItemPlaceThing[ITEM_NUM] = { -1, -1 };
+
+char CatItemPlay[ITEM_NUM][50] = { "장난감 쥐", "레이저 포인터" };
+int CatItemPricePlay[ITEM_NUM] = { 1, 2 };
+int CatItemPlacePlay[ITEM_NUM] = { -1, -1 };
+
 char CatItemFeelUpDialog[2][50] = { "조금", "제법" };
-int CatItemPlace[ITEM_NUM] = { -1, -1, -1, -1 }; //놀거리. 배치 안되어 있을 때(-1)
+
 int CatItemFeelUpStatus[ITEM_NUM] = {1, 2};
-int CatItemPrice[ITEM_NUM] = { 1, 2, 4, 6 };
 
 typedef struct {
 	char* name;
@@ -250,8 +256,8 @@ void Interaction(PLAYER* player) {
 
 	//배치된 놀거리가 있는지 확인.
 	for (int i = 0; i < ITEM_NUM; i++) {
-		if (CatItemPlace[i] != -1) { 
-			printf("%d. %s\n", menunum, CatItem[i]);
+		if (CatItemPlacePlay[i] != -1) { 
+			printf("%d. %s\n", menunum, CatItemPlay[i]);
 			menuitmindex[menunum] = i;
 			menunum++;
 		}
@@ -373,9 +379,9 @@ int CatMoveToSoup(PLAYER *player) {
 
 int MoveToNearItem(PLAYER* player, int itm) {
 	//고양이와 아이템이 같은 장소에 없을 때
-	if (cat != CatItemPlace[itm]) {
+	if (cat != CatItemPlaceThing[itm]) {
 		//같지 않고 고양이x가 더 클 때
-		if (cat > CatItemPlace[itm]) {
+		if (cat > CatItemPlaceThing[itm]) {
 			beforecat = cat;
 			cat--;
 		}
@@ -387,10 +393,10 @@ int MoveToNearItem(PLAYER* player, int itm) {
 	else {
 		switch (itm) {
 		case 0:
-			printf("%s은(는) %s를 긁고 놀았습니다.", player->name, CatItem[itm]);
+			printf("%s은(는) %s를 긁고 놀았습니다.", player->name, CatItemThing[itm]);
 			break;
 		case 1:
-			printf("%s은(는) %s를 뛰어다닙니다.", player->name, CatItem[itm]);
+			printf("%s은(는) %s를 뛰어다닙니다.", player->name, CatItemThing[itm]);
 			break;
 		}
 		printf(" 기분이 %s 좋아졌습니다 :", CatItemFeelUpDialog[itm]);
@@ -406,8 +412,8 @@ int NearItemCK(PLAYER* player) {
 
 	//가장 가까운 아이템 탐색
 	for (int i = 0; i < ITEM_NUM; i++) {
-		if (CatItemPlace[i] != -1) { 
-			int dis = abs(CatItemPlace[i] - cat);
+		if (CatItemPlaceThing[i] != -1) {
+			int dis = abs(CatItemPlaceThing[i] - cat);
 			if (dis < nearItemDis) {
 				nearItemDis = dis;
 				nearItemNum = i;
@@ -427,7 +433,7 @@ int CatMoveToItem(PLAYER* player) {
 	
 	//배치된 놀거리가 있는지 확인.
 	for (int i = 0; i < ITEM_NUM; i++) {
-		if (CatItemPlace[i] == -1) minusOneCount++;
+		if (CatItemPlaceThing[i] == -1) minusOneCount++;
 	}
 	
 	//모든 놀거리(Item)이(가) 없는 상황
@@ -459,7 +465,7 @@ int CatMove(PLAYER* player) {
 	case 1:
 		itemIndex = CatMoveToItem(player);
 		if ( itemIndex != -1) {
-			printf("%s은(는) 심심해서 %s쪽으로 이동합니다.\n", player->name, CatItem[itemIndex]);
+			printf("%s은(는) 심심해서 %s쪽으로 이동합니다.\n", player->name, CatItemThing[itemIndex]);
 		}
 		else {
 			printf("놀거리가 없어서 기분이 매우 나빠집니다");
@@ -467,7 +473,7 @@ int CatMove(PLAYER* player) {
 				printf("기분이 최저치라 더이상 나빠지지 않습니다!");
 			}
 			else {
-				printf("%d -> ", player->Feel);
+				printf( "%d -> ", player->Feel);
 				player->Feel--;
 				printf("%d\n", player->Feel);
 			}
@@ -500,7 +506,7 @@ void PrintStatusCat(PLAYER * player) {
 		printf("아직 집에 있습니다... \n\n");
 		break;
 	case 4:
-		printf("집에 도착하여 회복중입니다. %d -> %d\n\n", player->Feel -1, player->Feel);
+		printf("집에 도착하여 회복중입니다. 기분 : %d -> %d\n\n", player->Feel -1, player->Feel);
 		break;
 	}
 	ordernum = 0;
@@ -520,6 +526,20 @@ void PrintMap() {
 			else if (i == 1 && j == BWL_PO) {
 				printf("B");
 			}
+			else if (i == 1) {
+				int printed = 0;
+				for (int k = 0; k < ITEM_NUM; k++) {
+					if (CatItemPlaceThing[k] != -1 && CatItemPlaceThing[k] == j) {
+						if (strcmp(CatItemThing[k], "스크래쳐") == 0)
+							printf("S");
+						else if (strcmp(CatItemThing[k], "캣타워") == 0)
+							printf("T");
+						printed = 1;
+						break;
+					}
+				}
+				if (!printed) printf(" ");
+			}
 			else if (i == 2 && beforecat != NULL && j == beforecat) {
 				printf(".");
 			}
@@ -537,59 +557,84 @@ void PrintMap() {
 }
 
 void CreateCP(PLAYER* player) {
-	player->Feel = (MAX(0, player->Feel - 1) + player->RLevel);
+	player->CP += (MAX(0, player->Feel - 1) + player->RLevel);
 
-	printf("쫀떡의 기분(0~3): %d", player->Feel);
-	printf("집사와의 친밀도(0~4): %d", player->RLevel);
-	printf("쫀떡의 기분과 친밀도에 따라서 CP가 %d 포인트 생산되었습니다.", player->Feel);
-	printf("보유 CP: %d 포인트", player->CP);
+	printf("\n쫀떡의 기분(0~3): %d\n", player->Feel);
+	printf("집사와의 친밀도(0~4): %d\n", player->RLevel);
+	printf("쫀떡의 기분과 친밀도에 따라서 CP가 %d 포인트 생산되었습니다.\n", player->CP);
+	printf("보유 CP: %d 포인트\n\n", player->CP);
 }
 
 void Shop(PLAYER * player) {
-	printf("상점에서 물건을 살 수 있습니다.\n어떤 물건을 구매할까요?");
-	printf("0. 아무것도 사지 않는다.");
+	printf("상점에서 물건을 살 수 있습니다.\n어떤 물건을 구매할까요?\n");
+	printf("0. 아무것도 사지 않는다.\n");
+
 	for (int i = 0; i < ITEM_NUM; i++) {
-		printf("%d. %s : %d CP", i+1, CatItem[i], CatItemPrice[i]);
-		
-		if (CatItemPlace[i] != -1) {
+		printf("%d. %s : %d CP", i + 1, CatItemPlay[i], CatItemPricePlay[i]);
+		if (CatItemPlacePlay[i] != -1) {
+			printf(" (품절)");
+		}
+		printf("\n");
+	}
+
+	for (int i = 0; i < ITEM_NUM; i++) {
+		printf("%d. %s : %d CP", ITEM_NUM + i + 1, CatItemThing[i], CatItemPriceThing[i]);
+		if (CatItemPlaceThing[i] != -1) {
 			printf(" (품절)");
 		}
 		printf("\n");
 	}
 
 	int inputmp;
+
 	do {
-		printf(">>");
+		printf(">> ");
 		scanf_s("%d", &inputmp);
 
 		if (inputmp == 0) {
-			printf("물건을 사지 않았습니다.");
-			break;
-		}
-		int ritmidx = inputmp - 1;
-
-		if (ritmidx < 0 || ritmidx >= ITEM_NUM) {
-			continue;
-		}
-		if (CatItemPlace[(ritmidx)] != -1) {
-			printf("이미 구매한 물건입니다.");
-			break;
-		}
-		else if (player->CP < CatItemPrice[ritmidx]) {
-			printf("CP가 부족합니다.");
+			printf("물건을 사지 않았습니다.\n");
 			break;
 		}
 
-		player->CP - CatItemPrice[ritmidx];
-		printf("%s를 구매했습니다. 남은 Cp : %d 포인트\n", CatItem[ritmidx], player->CP);
+		int ridx = inputmp - 1;
 
-		if (ritmidx >= 2) {
+		if (ridx < ITEM_NUM) {
+			if (CatItemPlacePlay[ridx] != -1) {
+				printf("이미 구매한 장난감입니다.\n");
+				break;
+			}
+
+			if (player->CP < CatItemPricePlay[ridx]) {
+				printf("CP가 부족합니다.\n");
+				break;
+			}
+
+			player->CP -= CatItemPricePlay[ridx];
+			CatItemPlacePlay[ridx] = 0;
+			printf("%s를 구매했습니다. 보유 CP: %d 포인트\n", CatItemPlay[ridx], player->CP);
+		}
+		else {
+			int thingIdx = ridx - ITEM_NUM;
+
+			if (CatItemPlaceThing[thingIdx] != -1) {
+				printf("이미 구매한 가구입니다.\n");
+				break;
+			}
+
+			if (player->CP < CatItemPriceThing[thingIdx]) {
+				printf("CP가 부족합니다.\n");
+				break;
+			}
+
+			player->CP -= CatItemPriceThing[thingIdx];
+			printf("%s를 구매했습니다. 보유 CP: %d 포인트\n", CatItemThing[thingIdx], player->CP);
+
 			int x;
 			do {
-				x = Random(5);
+				x = Random(BWL_PO - HME_POS - 1) + HME_POS;
 				int ck = 0;
 				for (int i = 0; i < ITEM_NUM; i++) {
-					if (CatItemPlace[i] == x) {
+					if (CatItemPlaceThing[i] == x) {
 						ck = 1;
 						break;
 					}
@@ -597,11 +642,8 @@ void Shop(PLAYER * player) {
 				if (!ck) break;
 			} while (1);
 
-			CatItemPlace[ritmidx] = x;
-			printf("%s가 집의 위치 %d에 배치되었습니다.\n", CatItem[ritmidx], x);
-		}
-		else {
-			CatItemPlace[ritmidx] = 0;
+			CatItemPlaceThing[thingIdx] = x;
+			printf("%s가 %d에 배치\n", CatItemThing[thingIdx], x);
 		}
 
 		break;

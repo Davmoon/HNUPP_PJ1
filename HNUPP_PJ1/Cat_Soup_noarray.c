@@ -16,7 +16,7 @@
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
-int dice = 0, target = 0, ordernum = 0;
+int dice = 0, target = 0, ordernum = 0, homeck=0;
 bool beforehomestate = false;
 
 //구조체로 바꾸면 좋겠는데;;
@@ -219,7 +219,7 @@ void Interfuc(PLAYER* player, int dice, int mode, int range) {
 		if (player->Feel <= 1) player->Feel += 2;
 		else if (player->Feel == 2) player->Feel = 3;
 
-		printf("레이저 포인터로 %s와 신나게 놀아주었습니다. ", player->name);
+		printf("레이저 포인터로 %s와 신나게 놀아주었습니다. \n", player->name);
 		printf("%s의 기분이 꽤 좋아졌습니다: %d -> %d\n", player->name, beforefeal, player->Feel);
 		ST;
 		printf("주사위가 2 이상이면 친밀도가 1 증가합니다.\n");
@@ -341,6 +341,10 @@ int CatMoveToHome(PLAYER *player) {
 	if (cat > HME_POS) {
 		beforecat = cat;
 		cat--;
+		//첫턴에 막기
+		if (cat == HME_POS) {
+			homeck = 1;
+		}
 		//아무것도 출력 안함
 		ordernum = 0;
 		//ordernum = 2;
@@ -349,12 +353,6 @@ int CatMoveToHome(PLAYER *player) {
 	//끝일 때
 	else {
 		beforecat = NULL;
-		//휴식해서 좋아짐
-		if (player->Feel < 3) {
-			player->Feel++;
-			ordernum = 4;
-			return 1;
-		}
 		return 1;
 	}
 }
@@ -378,7 +376,43 @@ int CatMoveToSoup(PLAYER *player) {
 	}
 }
 
-int MoveToNearItem(PLAYER* player, int itm) {
+void CKItemLocation(PLAYER * player) {
+	
+	if (cat == HME_POS && homeck != 1) {
+		//휴식해서 좋아짐
+		if (player->Feel < 3) {
+			player->Feel++;
+			ordernum = 4;
+		}
+		
+	}
+	//thing에 고양이가 위치할 때
+	else {
+		for (int i = 0; i < ITEM_NUM; i++) {
+			if (CatItemPlaceThing[i] == cat) {
+				switch (i) {
+				case 0:
+					printf("%s은(는) %s를 긁고 놀았습니다.", player->name, CatItemThing[i]);
+					break;
+				case 1:
+					printf("%s은(는) %s를 뛰어다닙니다.", player->name, CatItemThing[i]);
+					break;
+				}
+				if (player->Feel < 3) {
+					printf("기분은 이미 최고치입니다.");
+				}
+				else {
+					printf(" 기분이 %s 좋아졌습니다 :", CatItemFeelUpDialog[i]);
+					printf("%d ->", player->Feel);
+					player->Feel += CatItemFeelUpStatus[i];
+					printf("%d\n", player->Feel);
+				}
+			}
+		}
+	}
+}
+
+void MoveToNearItem(PLAYER* player, int itm) {
 	//고양이와 아이템이 같은 장소에 없을 때
 	if (cat != CatItemPlaceThing[itm]) {
 		//같지 않고 고양이x가 더 클 때
@@ -390,20 +424,6 @@ int MoveToNearItem(PLAYER* player, int itm) {
 			beforecat = cat;
 			cat++;
 		}
-	}
-	else {
-		switch (itm) {
-		case 0:
-			printf("%s은(는) %s를 긁고 놀았습니다.", player->name, CatItemThing[itm]);
-			break;
-		case 1:
-			printf("%s은(는) %s를 뛰어다닙니다.", player->name, CatItemThing[itm]);
-			break;
-		}
-		printf(" 기분이 %s 좋아졌습니다 :", CatItemFeelUpDialog[itm]);
-		printf("%d ->", player->Feel);
-		player->Feel += CatItemFeelUpStatus[itm];
-		printf("%d\n", player->Feel);	
 	}
 }
 
@@ -558,11 +578,12 @@ void PrintMap() {
 }
 
 void CreateCP(PLAYER* player) {
-	player->CP += (MAX(0, player->Feel - 1) + player->RLevel);
+	int t = (MAX(0, player->Feel - 1) + player->RLevel);
 
 	printf("\n쫀떡의 기분(0~3): %d\n", player->Feel);
 	printf("집사와의 친밀도(0~4): %d\n", player->RLevel);
-	printf("쫀떡의 기분과 친밀도에 따라서 CP가 %d 포인트 생산되었습니다.\n", player->CP);
+	printf("쫀떡의 기분과 친밀도에 따라서 CP가 %d 포인트 생산되었습니다.\n", t);
+	player->CP += t;
 	printf("보유 CP: %d 포인트\n\n", player->CP);
 }
 
@@ -613,6 +634,7 @@ void Shop(PLAYER * player) {
 			player->CP -= CatItemPricePlay[playidx];
 			CatItemPlacePlay[playidx] = 0;
 			printf("%s를 구매했습니다. 보유 CP: %d 포인트\n", CatItemPlay[playidx], player->CP);
+			break;
 		}
 		//thing 물품
 		else if(playidx >= ITEM_NUM && playidx < ITEM_NUM * 2) {
@@ -646,6 +668,7 @@ void Shop(PLAYER * player) {
 
 			CatItemPlaceThing[thingIdx] = x;
 			printf("%s가 %d에 배치\n", CatItemThing[thingIdx], x);
+			break;
 		}
 
 	} while (1);
@@ -667,6 +690,8 @@ int main() {
 
 		int SoupPrint = CatMove(&player);
 
+		CKItemLocation(&player);
+
 		//PrintStatusRoomMove(player);
 		PrintStatusCat(&player);
 
@@ -684,6 +709,7 @@ int main() {
 
 		Sleep(2500); //2.5초 대기
 		system("cls");
+		homeck = 0;
 	}
 
 	free(player.name);

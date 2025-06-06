@@ -16,7 +16,7 @@
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
-int dice = 0, target = 0, ordernum = 0, homeck=0;
+int dice = 0, target = 0, ordernum = 0, homeck=1;
 bool beforehomestate = false;
 
 //구조체로 바꾸면 좋겠는데;;

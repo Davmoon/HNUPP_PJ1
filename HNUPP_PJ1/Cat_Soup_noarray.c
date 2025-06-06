@@ -16,7 +16,7 @@
 
 //고양이 시작 죄표
 int cat = 1, beforecat = NULL;
-int dice = 0, target = 0, ordernum = 0, homeck=1;
+int dice = 0, target = 0, ordernum = 0, homeck=1, roundck = 1;
 bool beforehomestate = false;
 
 //구조체로 바꾸면 좋겠는데;;
@@ -675,6 +675,26 @@ void Shop(PLAYER * player) {
 	
 }
 
+void outbreak() {
+	int a = Random(6);
+
+	printf("******** 돌발  퀘스트 ********\n숫자 맞추기 게임!\n");
+	printf("1~6까지 숫자중 숫자 하나를 골라주세요.\n");
+	int t = 0;
+	while (1) {
+		printf(">>");
+		scanf_s("%d", &t);
+		if (t == a) {
+			printf("대단해요! 잘 맞추셨습니다.");
+			Sleep(1000);
+			break;
+		}
+		else {
+			printf("다시 시도해주세요.\n");
+		}
+	}
+}
+
 int main() {
 	srand((unsigned int)time(NULL));
 
@@ -684,6 +704,11 @@ int main() {
 	PrintIntro(&player);
 
 	while (1) {
+		if (roundck == 3) {
+			outbreak();
+			system("cls");
+		}
+
 		PrintStatus(&player);
 
 		PrintStatusFeel(&player);
@@ -710,6 +735,7 @@ int main() {
 		Sleep(2500); //2.5초 대기
 		system("cls");
 		homeck = 0;
+		roundck++;
 	}
 
 	free(player.name);

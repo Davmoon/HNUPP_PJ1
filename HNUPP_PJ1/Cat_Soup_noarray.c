@@ -372,6 +372,7 @@ int CatMoveToSoup(PLAYER *player) {
 	}
 	//끝일 때
 	else {
+		player->soup_n++;
 		beforecat = NULL;
 		return 1;
 	}
@@ -591,30 +592,31 @@ void Shop(PLAYER * player) {
 		printf(">> ");
 		scanf_s("%d", &inputmp);
 
+		int playidx = inputmp - 1;
+
 		if (inputmp == 0) {
 			printf("물건을 사지 않았습니다.\n");
 			break;
 		}
-
-		int ridx = inputmp - 1;
-
-		if (ridx < ITEM_NUM) {
-			if (CatItemPlacePlay[ridx] != -1) {
+		//play 물품
+		else if (playidx < ITEM_NUM) {
+			if (CatItemPlacePlay[playidx] != -1) {
 				printf("이미 구매한 장난감입니다.\n");
 				break;
 			}
 
-			if (player->CP < CatItemPricePlay[ridx]) {
+			if (player->CP < CatItemPricePlay[playidx]) {
 				printf("CP가 부족합니다.\n");
 				break;
 			}
 
-			player->CP -= CatItemPricePlay[ridx];
-			CatItemPlacePlay[ridx] = 0;
-			printf("%s를 구매했습니다. 보유 CP: %d 포인트\n", CatItemPlay[ridx], player->CP);
+			player->CP -= CatItemPricePlay[playidx];
+			CatItemPlacePlay[playidx] = 0;
+			printf("%s를 구매했습니다. 보유 CP: %d 포인트\n", CatItemPlay[playidx], player->CP);
 		}
-		else {
-			int thingIdx = ridx - ITEM_NUM;
+		//thing 물품
+		else if(playidx >= ITEM_NUM && playidx < ITEM_NUM * 2) {
+			int thingIdx = playidx - ITEM_NUM;
 
 			if (CatItemPlaceThing[thingIdx] != -1) {
 				printf("이미 구매한 가구입니다.\n");
@@ -645,8 +647,6 @@ void Shop(PLAYER * player) {
 			CatItemPlaceThing[thingIdx] = x;
 			printf("%s가 %d에 배치\n", CatItemThing[thingIdx], x);
 		}
-
-		break;
 
 	} while (1);
 	

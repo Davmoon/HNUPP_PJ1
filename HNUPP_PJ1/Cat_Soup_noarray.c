@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <time.h>
 
-#define ROOM_WIDTH 8
+#define ROOM_WIDTH 10
 #define ROOM_HEIGHT 4
 #define HME_POS 1
 #define BWL_PO (ROOM_WIDTH - 2)
@@ -405,6 +405,9 @@ void CKItemLocation(PLAYER * player) {
 					printf(" 기분이 %s 좋아졌습니다 :", CatItemFeelUpDialog[i]);
 					printf("%d ->", player->Feel);
 					player->Feel += CatItemFeelUpStatus[i];
+					if (player->Feel > 3) {
+						player->Feel == 3;
+					}
 					printf("%d\n", player->Feel);
 				}
 			}
